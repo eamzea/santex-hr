@@ -1,4 +1,5 @@
 export interface ProductInterface {
+  id: string
   description: string;
   featuredAsset: {
     source: string;
