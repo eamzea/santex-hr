@@ -1,38 +1,27 @@
 import { useEffect, useState } from 'react';
 
-const useStateWithStorage = () => {
-  const [order, setOrder] = useState<null | {
-    orderId: number;
-    subTotal: number;
-  }>(null);
+const useStateWithStorage = (key: string) => {
+  const [value, setValue] = useState(null);
 
   useEffect(() => {
-    const orderExists = localStorage.getItem('orderData');
+    const storage = localStorage.getItem(key);
 
-    if (orderExists) {
-      const { subTotal } = JSON.parse(orderExists);
-      const newSubTotal = (order?.subTotal ?? 0) + Number(subTotal)
-
-      localStorage.setItem(
-        'orderData',
-        JSON.stringify({
-          ...order,
-          subTotal: newSubTotal
-        })
-      );
-    } else {
-      localStorage.setItem(
-        'orderData',
-        JSON.stringify({
-          ...order,
-        })
-      );
+    if (storage) {
+      setValue(JSON.parse(storage))
     }
-  }, [order]);
+  }, [])
 
-  return {
-    setOrder,
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [value]);
+
+  const modifyValue = (newValue: any) => {
+    const storage = localStorage.getItem(key)
+
+    setValue(newValue + (storage ? JSON.parse(storage) : 0));
   };
+
+  return { value, modifyValue };
 };
 
 export default useStateWithStorage;

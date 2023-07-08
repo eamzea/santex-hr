@@ -1,11 +1,20 @@
+import { useMemo } from 'react';
 import { useQuery } from '@apollo/client';
+import Product from '../Product';
 import { Container } from './ProductList.style';
 import { GET_PRODUCTS } from '../../graphql/queries';
-import Product from '../Product';
 import { ProductInterface } from '../../types';
 
 const ProductList = () => {
   const { loading, error, data } = useQuery(GET_PRODUCTS);
+
+  const products = useMemo(() => {
+    return loading
+      ? []
+      : data.products.items.filter(
+          (product: ProductInterface) => product.description
+        );
+  }, [data]);
 
   if (loading) return <></>;
   if (error)
@@ -17,8 +26,11 @@ const ProductList = () => {
 
   return (
     <Container>
-      {data.products.items.filter((product: ProductInterface) => product.description).map((product: ProductInterface) => (
-        <Product product={product} />
+      {products.map((product: ProductInterface) => (
+        <Product
+          key={`${product.description}-${Math.random()}`}
+          product={product}
+        />
       ))}
     </Container>
   );
