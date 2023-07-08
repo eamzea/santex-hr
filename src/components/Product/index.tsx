@@ -12,10 +12,21 @@ import {
 import { ProductInterface } from '../../types';
 import { useMutation } from '@apollo/client';
 import { ADD_PRODUCT_TO_ORDER } from '../../graphql/mutations';
+import useStateWithStorage from '../../hooks/useStateWithStorage';
 
 const Product: FC<{ product: ProductInterface }> = ({ product }) => {
-  const [addItemToOrder, { data, loading, error }] =
-    useMutation(ADD_PRODUCT_TO_ORDER);
+  const { setOrder } = useStateWithStorage();
+  const [addItemToOrder, { data, loading, error }] = useMutation(
+    ADD_PRODUCT_TO_ORDER,
+    {
+      onCompleted: ({ addItemToOrder }) => {
+        setOrder({
+          orderId: addItemToOrder.id,
+          subTotal: addItemToOrder.subTotal
+        });
+      },
+    }
+  );
 
   const handleAdd = (id: string) => {
     addItemToOrder({ variables: { productVariantId: id, quantity: 1 } });
